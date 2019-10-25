@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.ML;
 using ml.Tutorial;
@@ -12,29 +13,39 @@ namespace ml
     {
         static void Main(string[] args)
         {
-            List<IMLExample> examples = new List<IMLExample>
-            {
-                new Review.ReviewExample(),
-                new Tutorial.Binary.BinaryClassification(),
-                new Tutorial.MultiClass.MultiClassification()
-            };
+            IEnumerable<IMLExample> examples = AllML();
 
-            Parallel.For(0, examples.Count, (i, state) =>
-            {
-                Console.WriteLine($"{i} - {examples[i].GetType().ToString()} {examples[i].Description}");
-            });
+            Output(examples);
 
-            var example = examples[GetExample(examples.Count)];
+            Try(examples);
 
-            example.Try();
+            Console.WriteLine("Конец");
             Console.ReadLine();
         }
 
-        private static int GetExample(int? count)
+        private static void Try(IEnumerable<IMLExample> examples)
         {
-            if (!count.HasValue)
-                return int.Parse(Console.ReadLine());
-            return count.Value - 1;
+            if (int.TryParse(Console.ReadLine(), out int index))
+            {
+                var example = examples.ElementAtOrDefault(index);
+                example?.Try();
+            }
+        }
+
+        private static void Output(IEnumerable<IMLExample> examples)
+        {
+            int i = 0;
+            examples.AsParallel().AsOrdered().ForAll(example =>
+            {
+                Console.WriteLine($"{i++} - {example.GetType().ToString()} {example.Description}");
+            });
+        }
+
+        private static IEnumerable<IMLExample> AllML()
+        {
+            return (from t in Assembly.GetExecutingAssembly().GetTypes()
+                   where t.GetInterface(nameof(IMLExample)) != null && !t.IsAbstract
+                   select Activator.CreateInstance(t)).OfType<IMLExample>().ToList();
         }
     }
 }
