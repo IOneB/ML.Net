@@ -14,9 +14,7 @@ namespace ml
         static void Main(string[] args)
         {
             IEnumerable<IMLExample> examples = AllML();
-
             Output(examples);
-
             Try(examples);
 
             Console.WriteLine("Конец");
@@ -35,15 +33,12 @@ namespace ml
         private static void Output(IEnumerable<IMLExample> examples)
         {
             int i = 0;
-            examples.AsParallel().AsOrdered().ForAll(example =>
-            {
-                Console.WriteLine($"{i++} - {example.GetType().ToString()} {example.Description}");
-            });
+            examples.ToList().ForEach(example => Console.WriteLine($"{i++} - {example.GetType().ToString()} {example.Description}"));
         }
 
         private static IEnumerable<IMLExample> AllML()
         {
-            return (from t in Assembly.GetExecutingAssembly().GetTypes()
+            return (from t in Assembly.GetExecutingAssembly().GetTypes().AsParallel().AsOrdered()
                    where t.GetInterface(nameof(IMLExample)) != null && !t.IsAbstract
                    select Activator.CreateInstance(t)).OfType<IMLExample>().ToList();
         }

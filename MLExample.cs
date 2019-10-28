@@ -9,16 +9,18 @@ namespace ml
     abstract class MLExample : IMLExample
     {
         public string Description { get; }
-        protected MLContext context;
+        protected static MLContext context;
+        protected IDataView testData;
+        protected IDataView trainData;
 
-        public MLExample(string description)
+        public MLExample(string description, int? seed = null)
         {
             Description = description;
-            context = new MLContext();
+            context = new MLContext(seed);
         }
-        protected abstract TrainTestData LoadData();
-        protected abstract ITransformer BuildAndTrainModel(IDataView trainSet);
-        protected abstract void Evaluate(ITransformer model, IDataView testSet);
+        protected abstract void LoadData();
+        protected abstract ITransformer BuildAndTrainModel();
+        protected abstract void Evaluate(ITransformer model);
         protected abstract void UseModel(ITransformer model);
 
         public abstract void Try();

@@ -16,19 +16,22 @@ namespace ml.Tutorial.Binary
 
         public override void Try()
         {
-            TrainTestData splitDataView = LoadData();
-            ITransformer model = BuildAndTrainModel(splitDataView.TrainSet);
-            Evaluate(model, splitDataView.TestSet);
+            LoadData();
+            ITransformer model = BuildAndTrainModel();
+            Evaluate(model);
             UseModel(model);
         }
 
-        protected override TrainTestData LoadData()
+        protected override void LoadData()
         {
             var data = context.Data.LoadFromTextFile<SentimentialData>(_dataPath, hasHeader: false);
-            return context.Data.TrainTestSplit(data, 0.2);
+            var set = context.Data.TrainTestSplit(data, 0.2);
+
+            testData = set.TestSet;
+            trainData = set.TrainSet;
         }
 
-        protected override ITransformer BuildAndTrainModel(IDataView trainSet)
+        protected override ITransformer BuildAndTrainModel()
         {
             var estimator =
                 context
@@ -36,20 +39,20 @@ namespace ml.Tutorial.Binary
                 .FeaturizeText("Features", nameof(SentimentialData.Text))
                 .Append(context.BinaryClassification.Trainers.SdcaLogisticRegression("Label", featureColumnName: "Features"));
 
-            var model = estimator.Fit(trainSet);
+            var model = estimator.Fit(trainData);
 
             return model;
         }
 
-        protected override void Evaluate(ITransformer model, IDataView testSet)
+        protected override void Evaluate(ITransformer model)
         {
-            var prediction = model.Transform(testSet);
+            var prediction = model.Transform(testData);
             var metrics = context.BinaryClassification.Evaluate(prediction, "Label");
 
             Console.WriteLine("Model quality");
             Console.WriteLine($"Accuracy: {metrics.Accuracy}");
-            Console.WriteLine($"F1Score: {metrics.F1Score}"); // мера баланса между точностью и полнотой
-            Console.WriteLine($"Auc: {metrics.AreaUnderRocCurve}"); //уверенность модели в правильности классификации с положительными и отрицательными классами. Чем ближе к 1, тем лучше
+            Console.WriteLine($"F1Score: {metrics.F1Score} => 1"); // мера баланса между точностью и полнотой
+            Console.WriteLine($"Auc: {metrics.AreaUnderRocCurve} => 1"); //уверенность модели в правильности классификации с положительными и отрицательными классами. Чем ближе к 1, тем лучше
         }
         protected override void UseModel(ITransformer model)
         {
