@@ -12,14 +12,6 @@ namespace ml.Review
         {
         }
 
-        public override void Try()
-        {
-            LoadData();
-            var model = BuildAndTrainModel();
-            Evaluate(model);
-            UseModel(model);  
-        }
-
         protected override ITransformer BuildAndTrainModel()
         {
             var pipeline = context

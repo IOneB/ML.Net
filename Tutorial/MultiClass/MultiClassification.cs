@@ -6,20 +6,12 @@ using static Microsoft.ML.DataOperationsCatalog;
 
 namespace ml.Tutorial.MultiClass
 {
-    class MultiClassification : MLExample
+    class MultiClassification : MLTestTrain<GitHubIssues>
     {
-        private const string _trainDataPath = "Tutorial/multiclass/issues_train.tsv";
-        private const string _testDataPath = "Tutorial/multiclass/issues_test.tsv";
-
-        public MultiClassification() :base("Многоклассовая", 0) {}
-
-        public override void Try()
-        {
-            LoadData();
-            ITransformer model = BuildAndTrainModel();
-            Evaluate(model);
-            UseModel(model);
-        }
+        public MultiClassification() 
+            : base("Многоклассовая", 
+            "Tutorial/multiclass/issues_train.tsv", 
+            "Tutorial/multiclass/issues_test.tsv",  0) {}
 
         protected override ITransformer BuildAndTrainModel()
         {
@@ -49,12 +41,6 @@ namespace ml.Tutorial.MultiClass
             Console.WriteLine($"*       LogLossReduction: {metrics.LogLossReduction:0.###} => 0");
             Console.WriteLine($"*************************************************************************************************************");
 
-        }
-
-        protected override void LoadData()
-        {
-            trainData = context.Data.LoadFromTextFile<GitHubIssues>(_trainDataPath, hasHeader: true);
-            testData = context.Data.LoadFromTextFile<GitHubIssues>(_testDataPath, hasHeader: true);
         }
 
         protected override void UseModel(ITransformer model)

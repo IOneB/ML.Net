@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ml
 {
-    interface IMLExample
+    public interface IMLExample
     {
         void Try();
         string Description { get; }

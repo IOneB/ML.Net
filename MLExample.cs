@@ -6,7 +6,7 @@ using static Microsoft.ML.DataOperationsCatalog;
 
 namespace ml
 {
-    abstract class MLExample : IMLExample
+    public abstract class MLExample : IMLExample
     {
         public string Description { get; }
         protected static MLContext context;
@@ -23,6 +23,12 @@ namespace ml
         protected abstract void Evaluate(ITransformer model);
         protected abstract void UseModel(ITransformer model);
 
-        public abstract void Try();
+        public virtual void Try()
+        {
+            LoadData();
+            ITransformer model = BuildAndTrainModel();
+            Evaluate(model);
+            UseModel(model);
+        }
     }
 }

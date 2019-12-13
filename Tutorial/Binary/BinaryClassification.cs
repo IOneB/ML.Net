@@ -14,14 +14,6 @@ namespace ml.Tutorial.Binary
 
         public BinaryClassification() : base("Двоичная классификация") {}
 
-        public override void Try()
-        {
-            LoadData();
-            ITransformer model = BuildAndTrainModel();
-            Evaluate(model);
-            UseModel(model);
-        }
-
         protected override void LoadData()
         {
             var data = context.Data.LoadFromTextFile<SentimentialData>(_dataPath, hasHeader: false);
